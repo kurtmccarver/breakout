@@ -1269,11 +1269,7 @@ export default function Home() {
         </nav>
         <section className="sidebar-backup">
           <div className="sidebar-backup-header">
-            <div>
-              <h2>CSV Backup</h2>
-              <p>Export or restore your local workspace.</p>
-            </div>
-            <span className="badge">Local-only</span>
+            <h2>Backup</h2>
           </div>
           <div className="backup-actions">
             <button
@@ -1300,10 +1296,11 @@ export default function Home() {
               style={{ display: "none" }}
             />
           </div>
-          <p className="backup-note">
-            {backupMessage ||
-              "One CSV includes the selected account, all accounts, and all trades."}
-          </p>
+          {backupMessage ? (
+            <p className="backup-note" aria-live="polite">
+              {backupMessage}
+            </p>
+          ) : null}
         </section>
         <div className="sidebar-policies">
           <Link href="/terms" className="sidebar-link">
