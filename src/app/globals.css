@@ -929,6 +929,30 @@ td {
   margin-bottom: 1rem;
 }
 
+.backup-panel {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.backup-actions .ghost-action {
+  border-radius: 8px;
+  min-height: var(--control-h);
+}
+
+.backup-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .account-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(9rem, 10rem) auto;
@@ -1351,6 +1375,10 @@ tbody tr:hover {
 
   .account-form {
     grid-template-columns: 1fr;
+  }
+
+  .backup-actions {
+    flex-direction: column;
   }
 
   .filter-label {

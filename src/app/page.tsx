@@ -25,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Direction = "Long" | "Short";
 type TradeStatus = "Win" | "Loss" | "Breakeven";
@@ -68,6 +68,38 @@ type TradeForm = {
   risk: string;
   notes: string;
 };
+
+type BackupRow =
+  | {
+      recordType: "meta";
+      version: string;
+      selectedAccountId: string;
+    }
+  | {
+      recordType: "account";
+      version: string;
+      id: string;
+      name: string;
+      capital: string;
+    }
+  | {
+      recordType: "trade";
+      version: string;
+      id: string;
+      accountId: string;
+      symbol: string;
+      direction: Direction | "";
+      tags: string;
+      setup: string;
+      entryPrice: string;
+      exitPrice: string;
+      entryTime: string;
+      exitTime: string;
+      pnl: string;
+      rr: string;
+      status: TradeStatus | "";
+      notes: string;
+    };
 
 const navItems = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -393,6 +425,248 @@ function formatDuration(hours: number) {
   return wholeHours ? `${wholeHours}h ${minutes}m` : `${minutes}m`;
 }
 
+function escapeCsvCell(value: string) {
+  if (/[",\r\n]/.test(value) || /^\s|\s$/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+function serializeCsv(rows: string[][]) {
+  return rows.map((row) => row.map(escapeCsvCell).join(",")).join("\r\n");
+}
+
+function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    const next = text[index + 1];
+
+    if (quoted) {
+      if (character === '"' && next === '"') {
+        cell += '"';
+        index += 1;
+        continue;
+      }
+      if (character === '"') {
+        quoted = false;
+        continue;
+      }
+      cell += character;
+      continue;
+    }
+
+    if (character === '"') {
+      quoted = true;
+      continue;
+    }
+
+    if (character === ",") {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if (character === "\n") {
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+      continue;
+    }
+
+    if (character === "\r") {
+      continue;
+    }
+
+    cell += character;
+  }
+
+  if (cell.length || row.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function buildBackupCsv({
+  accounts,
+  trades,
+  selectedAccountId,
+}: {
+  accounts: Account[];
+  trades: Trade[];
+  selectedAccountId: string;
+}) {
+  const header = [
+    "recordType",
+    "version",
+    "id",
+    "name",
+    "capital",
+    "selectedAccountId",
+    "accountId",
+    "symbol",
+    "direction",
+    "tags",
+    "setup",
+    "entryPrice",
+    "exitPrice",
+    "entryTime",
+    "exitTime",
+    "pnl",
+    "rr",
+    "status",
+    "notes",
+  ];
+  const rows = [
+    header,
+    ["meta", "1", "", "", "", selectedAccountId, "", "", "", "", "", "", "", "", "", "", "", "", ""],
+    ...accounts.map((account) => [
+      "account",
+      "1",
+      account.id,
+      account.name,
+      String(account.capital),
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ]),
+    ...trades.map((trade) => [
+      "trade",
+      "1",
+      trade.id,
+      "",
+      "",
+      "",
+      trade.accountId,
+      trade.symbol,
+      trade.direction,
+      trade.tags,
+      trade.setup,
+      String(trade.entryPrice),
+      String(trade.exitPrice),
+      trade.entryTime,
+      trade.exitTime,
+      String(trade.pnl),
+      String(trade.rr),
+      trade.status,
+      trade.notes,
+    ]),
+  ];
+
+  return serializeCsv(rows);
+}
+
+function parseBackupCsv(content: string) {
+  const [header, ...rows] = parseCsv(content.trim());
+  if (!header?.length) {
+    throw new Error("Missing CSV header.");
+  }
+
+  const indexByColumn = new Map(header.map((column, index) => [column, index]));
+  const getValue = (row: string[], column: string) => {
+    const index = indexByColumn.get(column);
+    return index === undefined ? "" : row[index] ?? "";
+  };
+
+  const accounts: Account[] = [];
+  const trades: Trade[] = [];
+  let selectedAccountId = "";
+
+  rows.forEach((row) => {
+    const recordType = getValue(row, "recordType");
+    if (recordType === "meta") {
+      selectedAccountId = getValue(row, "selectedAccountId");
+      return;
+    }
+    if (recordType === "account") {
+      const id = getValue(row, "id").trim();
+      const name = getValue(row, "name").trim();
+      const capital = Number(getValue(row, "capital"));
+      if (!id || !name || Number.isNaN(capital)) return;
+      accounts.push({ id, name, capital });
+      return;
+    }
+    if (recordType === "trade") {
+      const id = getValue(row, "id").trim();
+      const accountId = getValue(row, "accountId").trim();
+      const symbol = getValue(row, "symbol").trim();
+      const direction = getValue(row, "direction") as Direction | "";
+      const setup = getValue(row, "setup").trim();
+      const entryPrice = Number(getValue(row, "entryPrice"));
+      const exitPrice = Number(getValue(row, "exitPrice"));
+      const entryTime = getValue(row, "entryTime").trim();
+      const exitTime = getValue(row, "exitTime").trim();
+      const pnl = Number(getValue(row, "pnl"));
+      const rr = Number(getValue(row, "rr"));
+      const status = getValue(row, "status") as TradeStatus | "";
+
+      if (
+        !id ||
+        !accountId ||
+        !symbol ||
+        !direction ||
+        !setup ||
+        !entryTime ||
+        !exitTime ||
+        Number.isNaN(entryPrice) ||
+        Number.isNaN(exitPrice) ||
+        Number.isNaN(pnl) ||
+        Number.isNaN(rr) ||
+        !status
+      ) {
+        return;
+      }
+
+      trades.push({
+        id,
+        accountId,
+        symbol,
+        direction,
+        tags: titleCase(getValue(row, "tags")),
+        setup,
+        entryPrice,
+        exitPrice,
+        entryTime,
+        exitTime,
+        pnl,
+        rr,
+        status,
+        notes: getValue(row, "notes"),
+      });
+    }
+  });
+
+  if (!accounts.length) {
+    throw new Error("No accounts were found in the CSV.");
+  }
+
+  const normalizedSelected = accounts.some(
+    (account) => account.id === selectedAccountId,
+  )
+    ? selectedAccountId
+    : accounts[0].id;
+
+  return { accounts, trades, selectedAccountId: normalizedSelected };
+}
+
 function StatCard({
   label,
   value,
@@ -540,6 +814,8 @@ export default function Home() {
   });
   const [eventWeekStart, setEventWeekStart] = useState("2026-08-17");
   const [currencyFilter, setCurrencyFilter] = useState("All");
+  const [backupMessage, setBackupMessage] = useState("");
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const savedAccounts = window.localStorage.getItem("breakout-accounts");
@@ -890,6 +1166,45 @@ export default function Home() {
     setForm(emptyForm);
     setEditingId(null);
     setSection("logs");
+  }
+
+  function exportCsvBackup() {
+    const csv = buildBackupCsv({
+      accounts,
+      trades,
+      selectedAccountId,
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "breakout-backup.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setBackupMessage("Exported backup CSV.");
+  }
+
+  async function importCsvBackup(file: File | null) {
+    if (!file) return;
+    try {
+      const content = await file.text();
+      const parsed = parseBackupCsv(content);
+      setAccounts(parsed.accounts);
+      setTrades(parsed.trades);
+      setSelectedAccountId(parsed.selectedAccountId);
+      setBackupMessage(`Imported ${parsed.accounts.length} accounts and ${parsed.trades.length} trades.`);
+      setSection("calculator");
+    } catch (error) {
+      setBackupMessage(
+        error instanceof Error ? error.message : "Import failed.",
+      );
+    } finally {
+      if (importInputRef.current) {
+        importInputRef.current.value = "";
+      }
+    }
   }
 
   return (
@@ -1681,6 +1996,47 @@ export default function Home() {
   ))}
 </div>
             </div>
+            <section className="panel backup-panel">
+              <div className="panel-title">
+                <div>
+                  <h2>CSV Backup</h2>
+                  <p className="panel-subtitle">
+                    Export all local accounts and trades into one CSV, or import
+                    a previous backup to restore the workspace.
+                  </p>
+                </div>
+                <span className="badge">Local-only</span>
+              </div>
+              <div className="backup-actions">
+                <button
+                  className="ghost-action"
+                  type="button"
+                  onClick={exportCsvBackup}
+                >
+                  <Save size={15} /> Export CSV
+                </button>
+                <button
+                  className="ghost-action"
+                  type="button"
+                  onClick={() => importInputRef.current?.click()}
+                >
+                  <Plus size={15} /> Import CSV
+                </button>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  onChange={(event) =>
+                    importCsvBackup(event.target.files?.[0] ?? null)
+                  }
+                  style={{ display: "none" }}
+                />
+              </div>
+              <p className="backup-note">
+                {backupMessage ||
+                  "One backup file includes the selected account, all accounts, and all trades."}
+              </p>
+            </section>
             <div className="calc-grid">
               <label>
                 Account Capital
