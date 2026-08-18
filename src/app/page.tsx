@@ -1199,7 +1199,6 @@ export default function Home() {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setBackupMessage("Exported backup CSV.");
   }
 
   async function importCsvBackup(file: File | null) {
@@ -1267,49 +1266,52 @@ export default function Home() {
             );
           })}
         </nav>
-        <section className="sidebar-backup">
-          <div className="sidebar-backup-header">
-            <h2>Backup</h2>
+        <div className="sidebar-footer">
+          <section className="sidebar-backup">
+            <div className="sidebar-backup-header">
+              <h2>Backup</h2>
+              <small>Save & restore your trading data</small>
+            </div>
+            <div className="backup-actions">
+              <button
+                className="ghost-action"
+                type="button"
+                onClick={exportCsvBackup}
+              >
+                <Save size={15} /> Export
+              </button>
+              <button
+                className="ghost-action"
+                type="button"
+                onClick={() => importInputRef.current?.click()}
+              >
+                <Plus size={15} /> Import
+              </button>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(event) =>
+                  importCsvBackup(event.target.files?.[0] ?? null)
+                }
+                style={{ display: "none" }}
+              />
+            </div>
+            {backupMessage ? (
+              <p className="backup-note" aria-live="polite">
+                {backupMessage}
+              </p>
+            ) : null}
+          </section>
+          <div className="sidebar-policies">
+            <Link href="/terms" className="sidebar-link">
+              Terms & Conditions
+            </Link>
+            <span className="sidebar-separator">·</span>
+            <Link href="/privacy" className="sidebar-link">
+              Privacy Policy
+            </Link>
           </div>
-          <div className="backup-actions">
-            <button
-              className="ghost-action"
-              type="button"
-              onClick={exportCsvBackup}
-            >
-              <Save size={15} /> Export
-            </button>
-            <button
-              className="ghost-action"
-              type="button"
-              onClick={() => importInputRef.current?.click()}
-            >
-              <Plus size={15} /> Import
-            </button>
-            <input
-              ref={importInputRef}
-              type="file"
-              accept=".csv,text/csv"
-              onChange={(event) =>
-                importCsvBackup(event.target.files?.[0] ?? null)
-              }
-              style={{ display: "none" }}
-            />
-          </div>
-          {backupMessage ? (
-            <p className="backup-note" aria-live="polite">
-              {backupMessage}
-            </p>
-          ) : null}
-        </section>
-        <div className="sidebar-policies">
-          <Link href="/terms" className="sidebar-link">
-            Terms & Conditions
-          </Link>
-          <span className="sidebar-separator">·</span>
-          <Link href="/privacy" className="sidebar-link">
-            Privacy Policy
-          </Link>
         </div>
       </aside>
 
