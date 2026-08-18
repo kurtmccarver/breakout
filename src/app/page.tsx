@@ -531,7 +531,7 @@ export default function Home() {
   const [risk, setRisk] = useState({
     riskPercent: "1",
     stopLossPercent: "2",
-    leverage: "1",
+    leverage: "100",
   });
   const [calendarDate, setCalendarDate] = useState({
     month: today.getMonth(),
@@ -735,8 +735,9 @@ export default function Home() {
   );
   const riskAmount = selectedAccount.capital * (Number(risk.riskPercent) / 100);
   const positionSize = Number(risk.stopLossPercent)
-    ? riskAmount / (Number(risk.stopLossPercent) / 100) / Number(risk.leverage)
+    ? riskAmount / (Number(risk.stopLossPercent) / 100)
     : 0;
+  const capitalUsed = positionSize / Number(risk.leverage);
 
   function moveMonth(delta: number) {
     setCalendarDate((current) => {
@@ -1719,11 +1720,7 @@ export default function Home() {
               />
               <StatCard
                 label="Capital Used"
-                value={formatMoney(
-                  Number(risk.leverage)
-                    ? positionSize / Number(risk.leverage)
-                    : positionSize,
-                )}
+                value={formatMoney(capitalUsed)}
                 icon={Gauge}
               />
             </div>
