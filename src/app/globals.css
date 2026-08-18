@@ -750,6 +750,28 @@ td {
   font-size: 1.45rem;
 }
 
+.lot-sizing-panel {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(123, 220, 181, 0.14);
+}
+
+.lot-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lot-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.lot-sizing-panel input[readonly] {
+  color: var(--accent-strong);
+  border-color: rgba(123, 220, 181, 0.22);
+  background: rgba(123, 220, 181, 0.08);
+}
+
 .primary-action.compact {
   margin-top: 0;
   min-height: 2.55rem;
@@ -1342,6 +1364,8 @@ tbody tr:hover {
   .reports-grid,
   .stats-grid,
   .stats-grid.overview,
+  .lot-grid,
+  .lot-stats,
   .journal-grid,
   .calc-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1389,6 +1413,8 @@ tbody tr:hover {
   .stats-grid.overview,
   .dashboard-grid,
   .reports-grid,
+  .lot-grid,
+  .lot-stats,
   .journal-grid,
   .calc-grid {
     grid-template-columns: 1fr;

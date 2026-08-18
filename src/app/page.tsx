@@ -374,6 +374,9 @@ const currency = new Intl.NumberFormat("en-US", {
 const numberFormat = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
+const lotFormat = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 3,
+});
 
 function titleCase(value: string) {
   return value
@@ -808,6 +811,10 @@ export default function Home() {
     stopLossPercent: "2",
     leverage: "100",
   });
+  const [lotSizing, setLotSizing] = useState({
+    stopLossPips: "25",
+    pipValuePerLot: "10",
+  });
   const [calendarDate, setCalendarDate] = useState({
     month: today.getMonth(),
     year: today.getFullYear(),
@@ -1030,6 +1037,15 @@ export default function Home() {
     ? riskAmount / (Number(risk.stopLossPercent) / 100)
     : 0;
   const capitalUsed = positionSize / Number(risk.leverage);
+  const stopLossPips = Number(lotSizing.stopLossPips);
+  const pipValuePerLot = Number(lotSizing.pipValuePerLot);
+  const standardLots =
+    riskAmount > 0 && stopLossPips > 0 && pipValuePerLot > 0
+      ? riskAmount / (stopLossPips * pipValuePerLot)
+      : 0;
+  const miniLots = standardLots * 10;
+  const microLots = standardLots * 100;
+  const rawUnits = standardLots * 100000;
 
   function moveMonth(delta: number) {
     setCalendarDate((current) => {
@@ -2109,6 +2125,79 @@ export default function Home() {
                 icon={Gauge}
               />
             </div>
+            <section className="lot-sizing-panel">
+              <div className="panel-title">
+                <div>
+                  <h2>Lot Sizing Calculator</h2>
+                  <p className="panel-subtitle">
+                    Converts your risk into forex or CFD lot units.
+                  </p>
+                </div>
+                <span className="badge">FX / CFD</span>
+              </div>
+              <div className="calc-grid lot-grid">
+                <label>
+                  Stop Loss (pips)
+                  <input
+                    type="number"
+                    value={lotSizing.stopLossPips}
+                    onChange={(event) =>
+                      setLotSizing({
+                        ...lotSizing,
+                        stopLossPips: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Pip Value / Lot
+                  <input
+                    type="number"
+                    value={lotSizing.pipValuePerLot}
+                    onChange={(event) =>
+                      setLotSizing({
+                        ...lotSizing,
+                        pipValuePerLot: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Risk Amount
+                  <input type="text" value={formatMoney(riskAmount)} readOnly />
+                </label>
+              </div>
+              <div className="formula-strip">
+                <span>Risk Amount</span>
+                <strong>/</strong>
+                <span>( Stop Loss Pips × Pip Value / Lot )</span>
+                <strong>=</strong>
+                <span>Standard Lots</span>
+              </div>
+              <div className="stats-grid lot-stats">
+                <StatCard
+                  label="Standard Lots"
+                  value={lotFormat.format(standardLots)}
+                  icon={CircleDollarSign}
+                  tone="positive"
+                />
+                <StatCard
+                  label="Mini Lots"
+                  value={lotFormat.format(miniLots)}
+                  icon={Target}
+                />
+                <StatCard
+                  label="Micro Lots"
+                  value={lotFormat.format(microLots)}
+                  icon={Gauge}
+                />
+                <StatCard
+                  label="Raw Units"
+                  value={Math.round(rawUnits).toLocaleString("en-US")}
+                  icon={BarChart3}
+                />
+              </div>
+            </section>
           </section>
         )}
       </section>
