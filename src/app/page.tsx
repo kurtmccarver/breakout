@@ -719,7 +719,6 @@ export default function Home() {
     )
     .slice(0, 6);
   const currencyOptions = [
-    "All",
     ...Array.from(new Set(economicEvents.map((event) => event.currency))),
   ];
   const eventWeekEnd = useMemo(() => {
@@ -783,6 +782,16 @@ export default function Home() {
     next.setDate(next.getDate() + delta * 7);
     setEventWeekStart(next.toISOString().slice(0, 10));
   }
+
+  function jumpToCurrentWeek() {
+  const today = new Date();
+  const day = today.getDay();
+  // Adjust so the week starts on Monday (change +1 to -0 if your week starts on Sunday)
+  const diff = today.getDate() - day + (day === 0 ? -6 : 1); 
+  const startOfWeek = new Date(today.setDate(diff));
+  
+  setEventWeekStart(startOfWeek.toISOString().slice(0, 10));
+}
 
   function deleteAccount(id: string) {
     if (accounts.length <= 1) return;
@@ -1403,83 +1412,138 @@ export default function Home() {
         )}
 
         {section === "calendar" && (
-          <section className="panel economic-panel">
-            <div className="panel-title">
-              <div>
-                <h2>Economic Calendar</h2>
-                <p className="panel-subtitle">
-                  Source: TradingView Economic Calendar. Forex Factory has no
-                  official public API available for this app.
-                </p>
-              </div>
-              <span className="badge">Weekly View</span>
-            </div>
-            <div className="calendar-toolbar">
-              <div className="mini-controls">
-                <button type="button" onClick={() => moveEventWeek(-1)}>
-                  <ChevronLeft size={14} /> Previous Week
-                </button>
-                <strong>
-                  {eventWeekStart} to {eventWeekEnd}
-                </strong>
-                <button type="button" onClick={() => moveEventWeek(1)}>
-                  Next Week <ChevronRight size={14} />
-                </button>
-              </div>
-              <label>
-                Currency
-                <select
-                  value={currencyFilter}
-                  onChange={(event) => setCurrencyFilter(event.target.value)}
-                >
-                  {currencyOptions.map((currencyCode) => (
-                    <option key={currencyCode}>{currencyCode}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="event-list">
-              <div className="event-head">
-                <span>Time</span>
-                <span>Currency</span>
-                <span>Event</span>
-                <span>Actual</span>
-                <span>Forecast</span>
-                <span>Previous</span>
-              </div>
-              {filteredEvents.map((event) => (
-                <article
-                  className={`event-row ${event.impact.toLowerCase()}`}
-                  key={`${event.date}-${event.time}-${event.event}`}
-                >
-                  <span className="event-time">
-                    {new Intl.DateTimeFormat("en-US", {
-                      weekday: "short",
-                      month: "short",
-                      day: "2-digit",
-                    }).format(new Date(`${event.date}T00:00`))}
-                    <small>{event.time}</small>
-                  </span>
-                  <span className="country-dot">{event.currency}</span>
-                  <div>
-                    <strong>{event.event}</strong>
-                    <p>
-                      {event.impact} impact · {event.source}
-                    </p>
-                  </div>
-                  <span>{event.actual}</span>
-                  <span>{event.forecast}</span>
-                  <span>{event.previous}</span>
-                </article>
-              ))}
-              {!filteredEvents.length ? (
-                <div className="empty-state">
-                  <p>No events for this filter.</p>
-                </div>
-              ) : null}
-            </div>
-          </section>
-        )}
+  <section className="panel economic-panel">
+    <div className="panel-title">
+      <div>
+        <h2>Economic Calendar</h2>
+        <p className="panel-subtitle">
+          Source: TradingView Economic Calendar. Forex Factory has no official public API available for this app.
+        </p>
+      </div>
+      <span className="badge">Weekly View</span>
+    </div>
+
+    {/* TOOLBAR: Added "This Week" button between Previous and Next controls */}
+    <div 
+      className="calendar-toolbar"
+      style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        flexWrap: "wrap",
+        gap: "16px",
+        marginBottom: "16px"
+      }}
+    >
+      <div className="mini-controls" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <button type="button" onClick={() => moveEventWeek(-1)}>
+          <ChevronLeft size={14} /> Previous
+        </button>
+
+        {/* Added Today/This Week reset button if you have a handler, or click to jump back */}
+        <button 
+          type="button" 
+          onClick={() => jumpToCurrentWeek && jumpToCurrentWeek()}
+          style={{ padding: "4px 10px", fontSize: "0.85em", borderRadius: "6px" }}
+          title="Jump to current week"
+        >
+          This Week
+        </button>
+
+        <strong>
+          {eventWeekStart} to {eventWeekEnd}
+        </strong>
+
+        <button type="button" onClick={() => moveEventWeek(1)}>
+          Next <ChevronRight size={14} />
+        </button>
+      </div>
+      
+      <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        Currency
+        <select
+          value={currencyFilter}
+          onChange={(event) => setCurrencyFilter(event.target.value)}
+        >
+          <option value="All">All</option>
+          {currencyOptions.map((currencyCode) => (
+            <option key={currencyCode}>{currencyCode}</option>
+          ))}
+        </select>
+      </label>
+    </div>
+
+    <div className="event-list">
+      {/* HEADER WITH BORDER */}
+      <div 
+        className="event-head"
+        style={{ 
+          display: "grid", 
+          gridTemplateColumns: "120px 80px 1fr 100px 100px 100px", 
+          gap: "16px",
+          paddingBottom: "12px", 
+          marginBottom: "12px",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
+          opacity: 0.8, 
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          fontSize: "0.85em",
+          letterSpacing: "0.5px"
+        }}
+      >
+        <span>Time</span>
+        <span>Currency</span>
+        <span>Event</span>
+        <span>Actual</span>
+        <span>Forecast</span>
+        <span>Previous</span>
+      </div>
+
+      {filteredEvents.map((event) => (
+        <article
+          className={`event-row ${event.impact.toLowerCase()}`}
+          key={`${event.date}-${event.time}-${event.event}`}
+          style={{ 
+            display: "grid", 
+            gridTemplateColumns: "120px 80px 1fr 100px 100px 100px", 
+            gap: "16px",
+            alignItems: "center"
+          }}
+        >
+          <span className="event-time" style={{ display: "flex", flexDirection: "column" }}>
+            <span>
+              {new Intl.DateTimeFormat("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "2-digit",
+              }).format(new Date(`${event.date}T00:00`))}
+            </span>
+            <small style={{ opacity: 0.7 }}>{event.time}</small>
+          </span>
+
+          <span className="country-dot">{event.currency}</span>
+          
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <strong>{event.event}</strong>
+            <p style={{ margin: 0, fontSize: "0.85em", opacity: 0.7 }}>
+              {event.impact} impact · {event.source}
+            </p>
+          </div>
+
+          <span>{event.actual || "-"}</span>
+          <span>{event.forecast || "-"}</span>
+          <span>{event.previous || "-"}</span>
+        </article>
+      ))}
+
+      {!filteredEvents.length ? (
+        <div className="empty-state">
+          <p>No events for this filter.</p>
+        </div>
+      ) : null}
+    </div>
+  </section>
+)}
 
         {section === "calculator" && (
           <section className="panel calculator-panel">
