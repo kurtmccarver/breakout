@@ -1251,6 +1251,44 @@ export default function Home() {
             );
           })}
         </nav>
+        <section className="sidebar-backup">
+          <div className="sidebar-backup-header">
+            <div>
+              <h2>CSV Backup</h2>
+              <p>Export or restore your local workspace.</p>
+            </div>
+            <span className="badge">Local-only</span>
+          </div>
+          <div className="backup-actions">
+            <button
+              className="ghost-action"
+              type="button"
+              onClick={exportCsvBackup}
+            >
+              <Save size={15} /> Export
+            </button>
+            <button
+              className="ghost-action"
+              type="button"
+              onClick={() => importInputRef.current?.click()}
+            >
+              <Plus size={15} /> Import
+            </button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              onChange={(event) =>
+                importCsvBackup(event.target.files?.[0] ?? null)
+              }
+              style={{ display: "none" }}
+            />
+          </div>
+          <p className="backup-note">
+            {backupMessage ||
+              "One CSV includes the selected account, all accounts, and all trades."}
+          </p>
+        </section>
         <div className="sidebar-policies">
           <Link href="/terms" className="sidebar-link">
             Terms & Conditions
@@ -1996,47 +2034,6 @@ export default function Home() {
   ))}
 </div>
             </div>
-            <section className="panel backup-panel">
-              <div className="panel-title">
-                <div>
-                  <h2>CSV Backup</h2>
-                  <p className="panel-subtitle">
-                    Export all local accounts and trades into one CSV, or import
-                    a previous backup to restore the workspace.
-                  </p>
-                </div>
-                <span className="badge">Local-only</span>
-              </div>
-              <div className="backup-actions">
-                <button
-                  className="ghost-action"
-                  type="button"
-                  onClick={exportCsvBackup}
-                >
-                  <Save size={15} /> Export CSV
-                </button>
-                <button
-                  className="ghost-action"
-                  type="button"
-                  onClick={() => importInputRef.current?.click()}
-                >
-                  <Plus size={15} /> Import CSV
-                </button>
-                <input
-                  ref={importInputRef}
-                  type="file"
-                  accept=".csv,text/csv"
-                  onChange={(event) =>
-                    importCsvBackup(event.target.files?.[0] ?? null)
-                  }
-                  style={{ display: "none" }}
-                />
-              </div>
-              <p className="backup-note">
-                {backupMessage ||
-                  "One backup file includes the selected account, all accounts, and all trades."}
-              </p>
-            </section>
             <div className="calc-grid">
               <label>
                 Account Capital
