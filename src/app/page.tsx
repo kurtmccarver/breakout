@@ -1424,43 +1424,29 @@ export default function Home() {
     </div>
 
     {/* TOOLBAR: Added "This Week" button between Previous and Next controls */}
-    <div 
-      className="calendar-toolbar"
-      style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        flexWrap: "wrap",
-        gap: "16px",
-        marginBottom: "16px"
-      }}
-    >
-      <div className="mini-controls" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <div className="calendar-toolbar">
+      <div className="mini-controls calendar-nav">
         <button type="button" onClick={() => moveEventWeek(-1)}>
           <ChevronLeft size={14} /> Previous
         </button>
-
-        {/* Added Today/This Week reset button if you have a handler, or click to jump back */}
-        <button 
-          type="button" 
-          onClick={() => jumpToCurrentWeek && jumpToCurrentWeek()}
-          style={{ padding: "4px 10px", fontSize: "0.85em", borderRadius: "6px" }}
+        <button
+          type="button"
+          className="week-pill"
+          onClick={() => jumpToCurrentWeek?.()}
           title="Jump to current week"
         >
           This Week
         </button>
-
-        <strong>
+        <strong className="calendar-range">
           {eventWeekStart} to {eventWeekEnd}
         </strong>
-
         <button type="button" onClick={() => moveEventWeek(1)}>
           Next <ChevronRight size={14} />
         </button>
       </div>
-      
-      <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        Currency
+
+      <label className="filter-label">
+        <span>Currency</span>
         <select
           value={currencyFilter}
           onChange={(event) => setCurrencyFilter(event.target.value)}
@@ -1474,23 +1460,7 @@ export default function Home() {
     </div>
 
     <div className="event-list">
-      {/* HEADER WITH BORDER */}
-      <div 
-        className="event-head"
-        style={{ 
-          display: "grid", 
-          gridTemplateColumns: "120px 80px 1fr 100px 100px 100px", 
-          gap: "16px",
-          paddingBottom: "12px", 
-          marginBottom: "12px",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
-          opacity: 0.8, 
-          fontWeight: "bold",
-          textTransform: "uppercase",
-          fontSize: "0.85em",
-          letterSpacing: "0.5px"
-        }}
-      >
+      <div className="event-head">
         <span>Time</span>
         <span>Currency</span>
         <span>Event</span>
@@ -1503,14 +1473,8 @@ export default function Home() {
         <article
           className={`event-row ${event.impact.toLowerCase()}`}
           key={`${event.date}-${event.time}-${event.event}`}
-          style={{ 
-            display: "grid", 
-            gridTemplateColumns: "120px 80px 1fr 100px 100px 100px", 
-            gap: "16px",
-            alignItems: "center"
-          }}
         >
-          <span className="event-time" style={{ display: "flex", flexDirection: "column" }}>
+          <span className="event-time">
             <span>
               {new Intl.DateTimeFormat("en-US", {
                 weekday: "short",
@@ -1518,14 +1482,14 @@ export default function Home() {
                 day: "2-digit",
               }).format(new Date(`${event.date}T00:00`))}
             </span>
-            <small style={{ opacity: 0.7 }}>{event.time}</small>
+            <small>{event.time}</small>
           </span>
 
           <span className="country-dot">{event.currency}</span>
           
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div className="event-meta">
             <strong>{event.event}</strong>
-            <p style={{ margin: 0, fontSize: "0.85em", opacity: 0.7 }}>
+            <p className="event-source">
               {event.impact} impact · {event.source}
             </p>
           </div>
@@ -1586,18 +1550,16 @@ export default function Home() {
   </button>
 </div>
 
-{/* Added w-full flex flex-col gap-2 so the list container stretches to the edges */}
 <div className="account-list">
   {accounts.map((account) => (
     <article
       key={account.id}
       className={account.id === selectedAccountId ? "selected" : ""}
-      style={{ display: "block", width: "100%", marginBottom: "8px" }}
     >
       {editingAccountId === account.id ? (
-        <div style={{ display: "flex", width: "100%", gap: "8px", alignItems: "center" }}>
+        <div className="account-edit-row">
           <input
-            style={{ flex: 1 }}
+            className="account-name-input"
             value={accountDraft.name}
             onChange={(event) =>
               setAccountDraft({
@@ -1607,8 +1569,8 @@ export default function Home() {
             }
           />
           <input
+            className="account-capital-input"
             type="number"
-            style={{ width: "120px" }}
             value={accountDraft.capital}
             onChange={(event) =>
               setAccountDraft({
@@ -1617,97 +1579,57 @@ export default function Home() {
               })
             }
           />
-          <button type="button" style={{ flexShrink: 0 }} onClick={saveAccount}>
+          <button
+            className="icon-button"
+            type="button"
+            onClick={saveAccount}
+            aria-label={`Save ${account.name}`}
+          >
             <Save size={15} />
           </button>
           <button
+            className="icon-button"
             type="button"
-            style={{ flexShrink: 0 }}
             onClick={() => setEditingAccountId(null)}
+            aria-label="Cancel account edit"
           >
             <X size={15} />
           </button>
         </div>
       ) : (
-        <button
-          type="button"
-          style={{
-            display: "flex",
-            width: "100%",
-            alignItems: "center",
-          }}
-          onClick={() => setSelectedAccountId(account.id)}
-        >
-          {/* Left Side: Account Name and Capital Stacked */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              flex: 1,
-              marginRight: "16px",
-              gap: "2px",
-            }}
+        <div className="account-card">
+          <button
+            type="button"
+            className="account-card-main"
+            onClick={() => setSelectedAccountId(account.id)}
           >
-            <strong>{account.name}</strong>
-            <span style={{ fontSize: "0.9em", opacity: 0.8 }}>
-              {formatMoney(account.capital)}
-            </span>
-          </div>
+            <div className="account-copy">
+              <strong>{account.name}</strong>
+              <span>{formatMoney(account.capital)}</span>
+            </div>
+          </button>
 
-          {/* Right Side: Actions with Hover Effects */}
-          <div
-            style={{
-              display: "flex",
-              gap: "14px",
-              flexShrink: 0,
-              borderLeft: "1px solid rgba(255, 255, 255, 0.15)",
-              paddingLeft: "16px",
-              alignItems: "center",
-              height: "100%",
-            }}
-          >
-            <div
-              role="button"
+          <div className="account-actions">
+            <button
+              className="icon-button"
+              type="button"
               title="Edit Account"
-              style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                cursor: "pointer",
-                color: "rgba(255, 255, 255, 0.5)", // Default dim color
-                transition: "color 0.2s ease-in-out", // Smooth fade effect
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = "#ffffff"} // Bright white on hover
-              onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.5)"}
-              onClick={(e) => {
-                e.stopPropagation();
-                startEditAccount(account);
-              }}
+              aria-label={`Edit ${account.name}`}
+              onClick={() => startEditAccount(account)}
             >
               <Edit3 size={15} />
-            </div>
-
-            <div
-              role="button"
+            </button>
+            <button
+              className="icon-button danger"
+              type="button"
               title="Delete Account"
-              style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                cursor: "pointer",
-                color: "rgba(255, 255, 255, 0.5)", // Default dim color
-                transition: "color 0.2s ease-in-out", // Smooth fade effect
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = "#ff6b6b"} // Soft red on hover
-              onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.5)"}
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteAccount(account.id);
-              }}
+              aria-label={`Delete ${account.name}`}
+              onClick={() => deleteAccount(account.id)}
             >
               <Trash2 size={15} />
-            </div>
+            </button>
           </div>
-        </button>
+        </div>
       )}
     </article>
   ))}
