@@ -101,6 +101,8 @@ input[type="checkbox"]:checked::after {
 }
 
 .sidebar {
+  display: flex;
+  flex-direction: column;
   border-right: 1px solid rgba(123, 220, 181, 0.16);
   background: rgba(6, 14, 13, 0.72);
   padding: 1.25rem 1rem;
@@ -139,6 +141,42 @@ input[type="checkbox"]:checked::after {
 .sidebar nav {
   display: grid;
   gap: 0.35rem;
+}
+
+.sidebar-policies {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.sidebar-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: rgba(145, 169, 162, 0.72);
+  background: transparent;
+  text-decoration: none;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sidebar-link:hover {
+  color: rgba(239, 248, 244, 0.88);
+  background: transparent;
+}
+
+.sidebar-separator {
+  color: rgba(145, 169, 162, 0.45);
+  font-size: 0.8rem;
+  user-select: none;
 }
 
 .sidebar button,
@@ -1016,6 +1054,98 @@ td {
 .account-list article.selected .account-card-main {
   border-color: rgba(167, 243, 208, 0.45);
   background: rgba(123, 220, 181, 0.09);
+}
+
+.policy-page {
+  min-height: 100dvh;
+  padding: 1.5rem;
+}
+
+.policy-shell {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+.policy-back {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--accent-strong);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.policy-back:hover {
+  text-decoration: underline;
+}
+
+.policy-hero {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(123, 220, 181, 0.16);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(123, 220, 181, 0.1), rgba(143, 183, 255, 0.06)),
+    rgba(15, 28, 26, 0.9);
+  box-shadow: var(--shadow);
+}
+
+.policy-hero p {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.policy-hero h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.policy-hero span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.policy-intro {
+  max-width: 50rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.policy-sections {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.policy-card {
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(123, 220, 181, 0.14);
+  border-radius: 10px;
+  background: rgba(15, 28, 26, 0.86);
+  box-shadow: var(--shadow);
+}
+
+.policy-card h2 {
+  margin-bottom: 0.6rem;
+  font-size: 1rem;
+}
+
+.policy-card p,
+.policy-card li {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.policy-card p + p {
+  margin-top: 0.65rem;
+}
+
+.policy-card ul {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
 }
 
 .chart-panel {

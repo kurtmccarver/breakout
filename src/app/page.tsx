@@ -24,6 +24,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type Direction = "Long" | "Short";
@@ -905,6 +906,15 @@ export default function Home() {
             );
           })}
         </nav>
+        <div className="sidebar-policies">
+          <Link href="/terms" className="sidebar-link">
+            Terms & Conditions
+          </Link>
+          <span className="sidebar-separator">·</span>
+          <Link href="/privacy" className="sidebar-link">
+            Privacy Policy
+          </Link>
+        </div>
       </aside>
 
       <section className="workspace">
