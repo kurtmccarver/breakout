@@ -71,35 +71,35 @@ type TradeForm = {
 
 type BackupRow =
   | {
-      recordType: "meta";
-      version: string;
-      selectedAccountId: string;
-    }
+    recordType: "meta";
+    version: string;
+    selectedAccountId: string;
+  }
   | {
-      recordType: "account";
-      version: string;
-      id: string;
-      name: string;
-      capital: string;
-    }
+    recordType: "account";
+    version: string;
+    id: string;
+    name: string;
+    capital: string;
+  }
   | {
-      recordType: "trade";
-      version: string;
-      id: string;
-      accountId: string;
-      symbol: string;
-      direction: Direction | "";
-      tags: string;
-      setup: string;
-      entryPrice: string;
-      exitPrice: string;
-      entryTime: string;
-      exitTime: string;
-      pnl: string;
-      rr: string;
-      status: TradeStatus | "";
-      notes: string;
-    };
+    recordType: "trade";
+    version: string;
+    id: string;
+    accountId: string;
+    symbol: string;
+    direction: Direction | "";
+    tags: string;
+    setup: string;
+    entryPrice: string;
+    exitPrice: string;
+    entryTime: string;
+    exitTime: string;
+    pnl: string;
+    rr: string;
+    status: TradeStatus | "";
+    notes: string;
+  };
 
 const navItems = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -1093,14 +1093,14 @@ export default function Home() {
   }
 
   function jumpToCurrentWeek() {
-  const today = new Date();
-  const day = today.getDay();
-  // Adjust so the week starts on Monday (change +1 to -0 if your week starts on Sunday)
-  const diff = today.getDate() - day + (day === 0 ? -6 : 1); 
-  const startOfWeek = new Date(today.setDate(diff));
-  
-  setEventWeekStart(startOfWeek.toISOString().slice(0, 10));
-}
+    const today = new Date();
+    const day = today.getDay();
+    // Adjust so the week starts on Monday (change +1 to -0 if your week starts on Sunday)
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+    const startOfWeek = new Date(today.setDate(diff));
+
+    setEventWeekStart(startOfWeek.toISOString().slice(0, 10));
+  }
 
   function deleteAccount(id: string) {
     setAccounts((current) => {
@@ -1820,102 +1820,102 @@ export default function Home() {
         )}
 
         {section === "calendar" && (
-  <section className="panel economic-panel">
-    <div className="panel-title">
-      <div>
-        <h2>Economic Calendar</h2>
-        <p className="panel-subtitle">
-          Source: TradingView Economic Calendar. Forex Factory has no official public API available for this app.
-        </p>
-      </div>
-      <span className="badge">Weekly View</span>
-    </div>
+          <section className="panel economic-panel">
+            <div className="panel-title">
+              <div>
+                <h2>Economic Calendar</h2>
+                <p className="panel-subtitle">
+                  Source: TradingView Economic Calendar. Forex Factory has no official public API available for this app.
+                </p>
+              </div>
+              <span className="badge">Weekly View</span>
+            </div>
 
-    {/* TOOLBAR: Added "This Week" button between Previous and Next controls */}
-    <div className="calendar-toolbar">
-      <div className="mini-controls calendar-nav">
-        <button type="button" onClick={() => moveEventWeek(-1)}>
-          <ChevronLeft size={14} /> Previous
-        </button>
-        <button
-          type="button"
-          className="week-pill"
-          onClick={() => jumpToCurrentWeek?.()}
-          title="Jump to current week"
-        >
-          This Week
-        </button>
-        <strong className="calendar-range">
-          {eventWeekStart} to {eventWeekEnd}
-        </strong>
-        <button type="button" onClick={() => moveEventWeek(1)}>
-          Next <ChevronRight size={14} />
-        </button>
-      </div>
+            {/* TOOLBAR: Added "This Week" button between Previous and Next controls */}
+            <div className="calendar-toolbar">
+              <div className="mini-controls calendar-nav">
+                <button type="button" onClick={() => moveEventWeek(-1)}>
+                  <ChevronLeft size={14} /> Previous
+                </button>
+                <button
+                  type="button"
+                  className="week-pill"
+                  onClick={() => jumpToCurrentWeek?.()}
+                  title="Jump to current week"
+                >
+                  This Week
+                </button>
+                <strong className="calendar-range">
+                  {eventWeekStart} to {eventWeekEnd}
+                </strong>
+                <button type="button" onClick={() => moveEventWeek(1)}>
+                  Next <ChevronRight size={14} />
+                </button>
+              </div>
 
-      <label className="filter-label">
-        <span>Currency</span>
-        <select
-          value={currencyFilter}
-          onChange={(event) => setCurrencyFilter(event.target.value)}
-        >
-          <option value="All">All</option>
-          {currencyOptions.map((currencyCode) => (
-            <option key={currencyCode}>{currencyCode}</option>
-          ))}
-        </select>
-      </label>
-    </div>
+              <label className="filter-label">
+                <span>Currency</span>
+                <select
+                  value={currencyFilter}
+                  onChange={(event) => setCurrencyFilter(event.target.value)}
+                >
+                  <option value="All">All</option>
+                  {currencyOptions.map((currencyCode) => (
+                    <option key={currencyCode}>{currencyCode}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
 
-    <div className="event-list">
-      <div className="event-head">
-        <span>Time</span>
-        <span>Currency</span>
-        <span>Event</span>
-        <span>Actual</span>
-        <span>Forecast</span>
-        <span>Previous</span>
-      </div>
+            <div className="event-list">
+              <div className="event-head">
+                <span>Time</span>
+                <span>Currency</span>
+                <span>Event</span>
+                <span>Actual</span>
+                <span>Forecast</span>
+                <span>Previous</span>
+              </div>
 
-      {filteredEvents.map((event) => (
-        <article
-          className={`event-row ${event.impact.toLowerCase()}`}
-          key={`${event.date}-${event.time}-${event.event}`}
-        >
-          <span className="event-time">
-            <span>
-              {new Intl.DateTimeFormat("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "2-digit",
-              }).format(new Date(`${event.date}T00:00`))}
-            </span>
-            <small>{event.time}</small>
-          </span>
+              {filteredEvents.map((event) => (
+                <article
+                  className={`event-row ${event.impact.toLowerCase()}`}
+                  key={`${event.date}-${event.time}-${event.event}`}
+                >
+                  <span className="event-time">
+                    <span>
+                      {new Intl.DateTimeFormat("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "2-digit",
+                      }).format(new Date(`${event.date}T00:00`))}
+                    </span>
+                    <small>{event.time}</small>
+                  </span>
 
-          <span className="country-dot">{event.currency}</span>
-          
-          <div className="event-meta">
-            <strong>{event.event}</strong>
-            <p className="event-source">
-              {event.impact} impact · {event.source}
-            </p>
-          </div>
+                  <span className="country-dot">{event.currency}</span>
 
-          <span>{event.actual || "-"}</span>
-          <span>{event.forecast || "-"}</span>
-          <span>{event.previous || "-"}</span>
-        </article>
-      ))}
+                  <div className="event-meta">
+                    <strong>{event.event}</strong>
+                    <p className="event-source">
+                      {event.impact} impact · {event.source}
+                    </p>
+                  </div>
 
-      {!filteredEvents.length ? (
-        <div className="empty-state">
-          <p>No events for this filter.</p>
-        </div>
-      ) : null}
-    </div>
-  </section>
-)}
+                  <span>{event.actual || "-"}</span>
+                  <span>{event.forecast || "-"}</span>
+                  <span>{event.previous || "-"}</span>
+                </article>
+              ))}
+
+              {!filteredEvents.length ? (
+                <div className="empty-state">
+                  <p>No events for this filter.</p>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        )}
 
         {section === "calculator" && (
           <section className="panel calculator-panel">
@@ -1928,126 +1928,126 @@ export default function Home() {
             </div>
             <div className="accounts-panel">
               <div>
-  <h2>Accounts</h2>
-  <p className="panel-subtitle">
-    Create, select, edit, and delete local trading accounts.
-  </p>
-</div>
+                <h2>Accounts</h2>
+                <p className="panel-subtitle">
+                  Create, select, edit, and delete local trading accounts.
+                </p>
+              </div>
 
-<div className="account-form">
-  <input
-    value={newAccount.name}
-    onChange={(event) =>
-      setNewAccount({ ...newAccount, name: event.target.value })
-    }
-    placeholder="Account name"
-  />
-  <input
-    type="number"
-    value={newAccount.capital}
-    onChange={(event) =>
-      setNewAccount({
-        ...newAccount,
-        capital: event.target.value,
-      })
-    }
-    placeholder="Capital"
-  />
-  <button type="button" onClick={addAccount}>
-    <Plus size={15} /> Add Account
-  </button>
-</div>
+              <div className="account-form">
+                <input
+                  value={newAccount.name}
+                  onChange={(event) =>
+                    setNewAccount({ ...newAccount, name: event.target.value })
+                  }
+                  placeholder="Account name"
+                />
+                <input
+                  type="number"
+                  value={newAccount.capital}
+                  onChange={(event) =>
+                    setNewAccount({
+                      ...newAccount,
+                      capital: event.target.value,
+                    })
+                  }
+                  placeholder="Capital"
+                />
+                <button type="button" onClick={addAccount}>
+                  <Plus size={15} /> Add Account
+                </button>
+              </div>
 
-<div className="account-list">
-  {accounts.map((account) => (
-    <article
-      key={account.id}
-      className={account.id === selectedAccountId ? "selected" : ""}
-    >
-      {editingAccountId === account.id ? (
-        <div className="account-edit-row">
-          <label className="account-field">
-            <span>Account name</span>
-            <input
-              className="account-name-input"
-              value={accountDraft.name}
-              onChange={(event) =>
-                setAccountDraft({
-                  ...accountDraft,
-                  name: event.target.value,
-                })
-              }
-            />
-          </label>
-          <label className="account-field">
-            <span>Capital</span>
-            <input
-              className="account-capital-input"
-              type="number"
-              value={accountDraft.capital}
-              onChange={(event) =>
-                setAccountDraft({
-                  ...accountDraft,
-                  capital: event.target.value,
-                })
-              }
-            />
-          </label>
-          <button
-            className="icon-button"
-            type="button"
-            onClick={saveAccount}
-            aria-label={`Save ${account.name}`}
-          >
-            <Save size={15} />
-          </button>
-          <button
-            className="icon-button"
-            type="button"
-            onClick={() => setEditingAccountId(null)}
-            aria-label="Cancel account edit"
-          >
-            <X size={15} />
-          </button>
-        </div>
-      ) : (
-        <div className="account-card">
-          <button
-            type="button"
-            className="account-card-main"
-            onClick={() => setSelectedAccountId(account.id)}
-          >
-            <div className="account-copy">
-              <strong>{account.name}</strong>
-              <span>{formatMoney(account.capital)}</span>
-            </div>
-          </button>
+              <div className="account-list">
+                {accounts.map((account) => (
+                  <article
+                    key={account.id}
+                    className={account.id === selectedAccountId ? "selected" : ""}
+                  >
+                    {editingAccountId === account.id ? (
+                      <div className="account-edit-row">
+                        <label className="account-field">
+                          <span>Account name</span>
+                          <input
+                            className="account-name-input"
+                            value={accountDraft.name}
+                            onChange={(event) =>
+                              setAccountDraft({
+                                ...accountDraft,
+                                name: event.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        <label className="account-field">
+                          <span>Capital</span>
+                          <input
+                            className="account-capital-input"
+                            type="number"
+                            value={accountDraft.capital}
+                            onChange={(event) =>
+                              setAccountDraft({
+                                ...accountDraft,
+                                capital: event.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        <button
+                          className="icon-button"
+                          type="button"
+                          onClick={saveAccount}
+                          aria-label={`Save ${account.name}`}
+                        >
+                          <Save size={15} />
+                        </button>
+                        <button
+                          className="icon-button"
+                          type="button"
+                          onClick={() => setEditingAccountId(null)}
+                          aria-label="Cancel account edit"
+                        >
+                          <X size={15} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="account-card">
+                        <button
+                          type="button"
+                          className="account-card-main"
+                          onClick={() => setSelectedAccountId(account.id)}
+                        >
+                          <div className="account-copy">
+                            <strong>{account.name}</strong>
+                            <span>{formatMoney(account.capital)}</span>
+                          </div>
+                        </button>
 
-          <div className="account-actions">
-            <button
-              className="icon-button"
-              type="button"
-              title="Edit Account"
-              aria-label={`Edit ${account.name}`}
-              onClick={() => startEditAccount(account)}
-            >
-              <Edit3 size={15} />
-            </button>
-            <button
-              className="icon-button danger"
-              type="button"
-              title="Delete Account"
-              aria-label={`Delete ${account.name}`}
-              onClick={() => deleteAccount(account.id)}
-            >
-              <Trash2 size={15} />
-            </button>
-          </div>
-        </div>
-      )}
-    </article>
-  ))}
-</div>
+                        <div className="account-actions">
+                          <button
+                            className="icon-button"
+                            type="button"
+                            title="Edit Account"
+                            aria-label={`Edit ${account.name}`}
+                            onClick={() => startEditAccount(account)}
+                          >
+                            <Edit3 size={15} />
+                          </button>
+                          <button
+                            className="icon-button danger"
+                            type="button"
+                            title="Delete Account"
+                            aria-label={`Delete ${account.name}`}
+                            onClick={() => deleteAccount(account.id)}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
             </div>
             <div className="calc-grid">
               <label>

@@ -859,7 +859,7 @@ td {
   gap: 0.45rem;
 }
 
-.weekly-column > span {
+.weekly-column>span {
   color: var(--muted);
   font-size: 0.78rem;
   text-align: center;
@@ -1310,7 +1310,7 @@ td {
   line-height: 1.7;
 }
 
-.policy-card p + p {
+.policy-card p+p {
   margin-top: 0.65rem;
 }
 
@@ -1432,7 +1432,7 @@ tbody tr:hover {
     grid-template-rows: auto;
   }
 
-  .weekly-column > span {
+  .weekly-column>span {
     grid-column: 1 / -1;
   }
 
