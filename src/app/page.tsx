@@ -1491,104 +1491,162 @@ export default function Home() {
             </div>
             <div className="accounts-panel">
               <div>
-                <h2>Accounts</h2>
-                <p className="panel-subtitle">
-                  Create, select, edit, and delete local trading accounts.
-                </p>
-              </div>
-              <div className="account-form">
-                <input
-                  value={newAccount.name}
-                  onChange={(event) =>
-                    setNewAccount({ ...newAccount, name: event.target.value })
-                  }
-                  placeholder="Account name"
-                />
-                <input
-                  type="number"
-                  value={newAccount.capital}
-                  onChange={(event) =>
-                    setNewAccount({
-                      ...newAccount,
-                      capital: event.target.value,
-                    })
-                  }
-                  placeholder="Capital"
-                />
-                <button type="button" onClick={addAccount}>
-                  <Plus size={15} /> Add Account
-                </button>
-              </div>
-              <div className="account-list">
-                {accounts.map((account) => (
-  <article
-    key={account.id}
-    className={
-      account.id === selectedAccountId ? "selected w-full" : "w-full"
+  <h2>Accounts</h2>
+  <p className="panel-subtitle">
+    Create, select, edit, and delete local trading accounts.
+  </p>
+</div>
+
+<div className="account-form">
+  <input
+    value={newAccount.name}
+    onChange={(event) =>
+      setNewAccount({ ...newAccount, name: event.target.value })
     }
-  >
-    {editingAccountId === account.id ? (
-      <div className="account-edit">
-        <input
-          value={accountDraft.name}
-          onChange={(event) =>
-            setAccountDraft({
-              ...accountDraft,
-              name: event.target.value,
-            })
-          }
-        />
-        <input
-          type="number"
-          value={accountDraft.capital}
-          onChange={(event) =>
-            setAccountDraft({
-              ...accountDraft,
-              capital: event.target.value,
-            })
-          }
-        />
-        <button type="button" onClick={saveAccount}>
-          <Save size={15} />
-        </button>
+    placeholder="Account name"
+  />
+  <input
+    type="number"
+    value={newAccount.capital}
+    onChange={(event) =>
+      setNewAccount({
+        ...newAccount,
+        capital: event.target.value,
+      })
+    }
+    placeholder="Capital"
+  />
+  <button type="button" onClick={addAccount}>
+    <Plus size={15} /> Add Account
+  </button>
+</div>
+
+{/* Added w-full flex flex-col gap-2 so the list container stretches to the edges */}
+<div className="account-list">
+  {accounts.map((account) => (
+    <article
+      key={account.id}
+      className={account.id === selectedAccountId ? "selected" : ""}
+      style={{ display: "block", width: "100%", marginBottom: "8px" }}
+    >
+      {editingAccountId === account.id ? (
+        <div style={{ display: "flex", width: "100%", gap: "8px", alignItems: "center" }}>
+          <input
+            style={{ flex: 1 }}
+            value={accountDraft.name}
+            onChange={(event) =>
+              setAccountDraft({
+                ...accountDraft,
+                name: event.target.value,
+              })
+            }
+          />
+          <input
+            type="number"
+            style={{ width: "120px" }}
+            value={accountDraft.capital}
+            onChange={(event) =>
+              setAccountDraft({
+                ...accountDraft,
+                capital: event.target.value,
+              })
+            }
+          />
+          <button type="button" style={{ flexShrink: 0 }} onClick={saveAccount}>
+            <Save size={15} />
+          </button>
+          <button
+            type="button"
+            style={{ flexShrink: 0 }}
+            onClick={() => setEditingAccountId(null)}
+          >
+            <X size={15} />
+          </button>
+        </div>
+      ) : (
         <button
           type="button"
-          onClick={() => setEditingAccountId(null)}
-        >
-          <X size={15} />
-        </button>
-      </div>
-    ) : (
-      <div className="flex flex-row items-center gap-2 w-full">
-        <button
-          type="button"
-          className="flex flex-1 items-center justify-between px-3 py-1.5 border border-slate-700 rounded-md hover:bg-slate-800 transition-colors"
+          style={{
+            display: "flex",
+            width: "100%",
+            alignItems: "center",
+          }}
           onClick={() => setSelectedAccountId(account.id)}
         >
-          <strong className="text-left truncate mr-2">{account.name}</strong>
-          <span className="text-slate-300 whitespace-nowrap">{formatMoney(account.capital)}</span>
-        </button>
+          {/* Left Side: Account Name and Capital Stacked */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              flex: 1,
+              marginRight: "16px",
+              gap: "2px",
+            }}
+          >
+            <strong>{account.name}</strong>
+            <span style={{ fontSize: "0.9em", opacity: 0.8 }}>
+              {formatMoney(account.capital)}
+            </span>
+          </div>
 
-        <button
-          type="button"
-          className="p-1.5 shrink-0 flex items-center justify-center border border-slate-700 rounded-md hover:bg-slate-800 transition-colors text-slate-300 hover:text-white"
-          onClick={() => startEditAccount(account)}
-        >
-          <Edit3 size={15} />
-        </button>
+          {/* Right Side: Actions with Hover Effects */}
+          <div
+            style={{
+              display: "flex",
+              gap: "14px",
+              flexShrink: 0,
+              borderLeft: "1px solid rgba(255, 255, 255, 0.15)",
+              paddingLeft: "16px",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <div
+              role="button"
+              title="Edit Account"
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                cursor: "pointer",
+                color: "rgba(255, 255, 255, 0.5)", // Default dim color
+                transition: "color 0.2s ease-in-out", // Smooth fade effect
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = "#ffffff"} // Bright white on hover
+              onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.5)"}
+              onClick={(e) => {
+                e.stopPropagation();
+                startEditAccount(account);
+              }}
+            >
+              <Edit3 size={15} />
+            </div>
 
-        <button
-          type="button"
-          className="p-1.5 shrink-0 flex items-center justify-center border border-slate-700 rounded-md hover:bg-slate-800 transition-colors text-slate-300 hover:text-red-400"
-          onClick={() => deleteAccount(account.id)}
-        >
-          <Trash2 size={15} />
+            <div
+              role="button"
+              title="Delete Account"
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                cursor: "pointer",
+                color: "rgba(255, 255, 255, 0.5)", // Default dim color
+                transition: "color 0.2s ease-in-out", // Smooth fade effect
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = "#ff6b6b"} // Soft red on hover
+              onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.5)"}
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteAccount(account.id);
+              }}
+            >
+              <Trash2 size={15} />
+            </div>
+          </div>
         </button>
-      </div>
-    )}
-  </article>
-))}
-              </div>
+      )}
+    </article>
+  ))}
+</div>
             </div>
             <div className="calc-grid">
               <label>
