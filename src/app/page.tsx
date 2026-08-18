@@ -547,7 +547,10 @@ export default function Home() {
       "breakout-selected-account",
     );
     const savedTrades = window.localStorage.getItem("breakout-trades");
-    if (savedAccounts) setAccounts(JSON.parse(savedAccounts));
+    if (savedAccounts) {
+      const parsedAccounts = JSON.parse(savedAccounts) as Account[];
+      if (parsedAccounts.length) setAccounts(parsedAccounts);
+    }
     if (savedSelected) setSelectedAccountId(savedSelected);
     if (savedTrades) {
       const parsed = JSON.parse(savedTrades) as Partial<Trade>[];
@@ -561,6 +564,13 @@ export default function Home() {
       );
     }
   }, []);
+
+  useEffect(() => {
+    if (!accounts.length) return;
+    if (!accounts.some((account) => account.id === selectedAccountId)) {
+      setSelectedAccountId(accounts[0].id);
+    }
+  }, [accounts, selectedAccountId]);
 
   useEffect(
     () =>
@@ -586,6 +596,12 @@ export default function Home() {
 
   const selectedAccount =
     accounts.find((account) => account.id === selectedAccountId) ?? accounts[0];
+  const accountNameById = useMemo(
+    () => new Map(accounts.map((account) => [account.id, account.name])),
+    [accounts],
+  );
+  const getAccountName = (accountId: string) =>
+    accountNameById.get(accountId) ?? "Unknown account";
   const accountTrades = trades.filter(
     (trade) => trade.accountId === selectedAccount?.id,
   );
@@ -795,13 +811,27 @@ export default function Home() {
 }
 
   function deleteAccount(id: string) {
-    if (accounts.length <= 1) return;
-    setAccounts((current) => current.filter((account) => account.id !== id));
-    setTrades((current) => current.filter((trade) => trade.accountId !== id));
-    if (selectedAccountId === id)
-      setSelectedAccountId(
-        accounts.find((account) => account.id !== id)?.id ?? "main",
+    setAccounts((current) => {
+      if (current.length <= 1) return current;
+      const nextAccounts = current.filter((account) => account.id !== id);
+      setTrades((currentTrades) =>
+        currentTrades.filter((trade) => trade.accountId !== id),
       );
+      setEditingAccountId((currentEditingId) =>
+        currentEditingId === id ? null : currentEditingId,
+      );
+      setAccountDraft({ name: "", capital: "" });
+      setSelectedAccountId((currentSelectedId) => {
+        if (
+          currentSelectedId !== id &&
+          nextAccounts.some((account) => account.id === currentSelectedId)
+        ) {
+          return currentSelectedId;
+        }
+        return nextAccounts[0]?.id ?? currentSelectedId;
+      });
+      return nextAccounts;
+    });
   }
 
   function loadTrade(trade: Trade) {
@@ -1292,7 +1322,7 @@ export default function Home() {
                         <strong>{trade.symbol}</strong>
                         <small>{trade.setup}</small>
                       </td>
-                      <td>{selectedAccount.name}</td>
+                      <td>{getAccountName(trade.accountId)}</td>
                       <td>{trade.tags || "-"}</td>
                       <td>{numberFormat.format(trade.entryPrice)}</td>
                       <td>{numberFormat.format(trade.exitPrice)}</td>
@@ -1568,27 +1598,33 @@ export default function Home() {
     >
       {editingAccountId === account.id ? (
         <div className="account-edit-row">
-          <input
-            className="account-name-input"
-            value={accountDraft.name}
-            onChange={(event) =>
-              setAccountDraft({
-                ...accountDraft,
-                name: event.target.value,
-              })
-            }
-          />
-          <input
-            className="account-capital-input"
-            type="number"
-            value={accountDraft.capital}
-            onChange={(event) =>
-              setAccountDraft({
-                ...accountDraft,
-                capital: event.target.value,
-              })
-            }
-          />
+          <label className="account-field">
+            <span>Account name</span>
+            <input
+              className="account-name-input"
+              value={accountDraft.name}
+              onChange={(event) =>
+                setAccountDraft({
+                  ...accountDraft,
+                  name: event.target.value,
+                })
+              }
+            />
+          </label>
+          <label className="account-field">
+            <span>Capital</span>
+            <input
+              className="account-capital-input"
+              type="number"
+              value={accountDraft.capital}
+              onChange={(event) =>
+                setAccountDraft({
+                  ...accountDraft,
+                  capital: event.target.value,
+                })
+              }
+            />
+          </label>
           <button
             className="icon-button"
             type="button"
@@ -1700,7 +1736,7 @@ export default function Home() {
               <strong>/</strong>
               <span>Leverage</span>
               <strong>=</strong>
-              <span>Position Size</span>
+              <span>Capital Used</span>
             </div>
             <div className="stats-grid">
               <StatCard
