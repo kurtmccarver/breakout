@@ -2124,7 +2124,10 @@ export default function Home() {
                 icon={Gauge}
               />
             </div>
-            <section className="lot-sizing-panel">
+
+            {/* TODO: Add lot sizing calculator back in once I figure out how to handle the pip value per lot input. It was causing a hydration error because the input value was being set to a number, but the input was expecting a string. I need to either convert the number to a string before setting the input value, or change the input type to number and handle the conversion in the onChange handler. */}
+            
+            {/* <section className="lot-sizing-panel">
               <div className="panel-title">
                 <div>
                   <h2>Lot Sizing Calculator</h2>
@@ -2196,7 +2199,7 @@ export default function Home() {
                   icon={BarChart3}
                 />
               </div>
-            </section>
+            </section> */}
           </section>
         )}
       </section>
